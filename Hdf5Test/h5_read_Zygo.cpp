@@ -16,7 +16,7 @@ int main()
 
         // 2. 데이터셋 위치 확인 (Zygo 표준 경로 예시: /Data/Surface)
         // ※ 실제 경로는 Mx 소프트웨어 버전에 따라 다를 수 있으므로 HDFView로 확인 권장
-        DataSet dataset = file.openDataSet("/Data/Surface");
+        DataSet dataset = file.openDataSet("/Data/Surface/{2F2A75F4-7E35-47B1-B59C-B7A71E3A7613}");
 
         // 3. 데이터 공간 및 크기 확인
         DataSpace dataspace = dataset.getSpace();
@@ -30,6 +30,7 @@ int main()
         dataset.read(data_out, PredType::NATIVE_FLOAT);
 
         // 데이터 처리...
+		/*
 		int NX = dims_out[0]; // 행 크기
 		int NY = dims_out[1]; // 열 크기
 
@@ -43,9 +44,11 @@ int main()
                 cout << *(data_out+(i * NX + j)) << (j == NY - 1 ? "" : ", ");
             }
             cout << "]" << endl;
-        }
+        }*/
 
         delete[] data_out;
+
+		cout << "Complete reading!!!" << endl;
     } 
 	catch (FileIException &error) 
 	{
