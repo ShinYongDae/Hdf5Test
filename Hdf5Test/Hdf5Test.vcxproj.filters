@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="h5_read_Zygo.cpp">
+    <ClCompile Include="h5_read_Zygo_Attribute2.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

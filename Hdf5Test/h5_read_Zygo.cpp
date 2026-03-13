@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+//#include <vector>
+
 #include "H5Cpp.h"
 
 using namespace H5;
@@ -7,7 +9,7 @@ using namespace std;
 
 int main() 
 {
-    const std::string FILE_NAME = "example.datx";
+    const std::string FILE_NAME = "example.datx"; // Your Zygo DATX file
     
     try 
 	{
@@ -16,7 +18,8 @@ int main()
 
         // 2. 데이터셋 위치 확인 (Zygo 표준 경로 예시: /Data/Surface)
         // ※ 실제 경로는 Mx 소프트웨어 버전에 따라 다를 수 있으므로 HDFView로 확인 권장
-        DataSet dataset = file.openDataSet("/Data/Surface/{2F2A75F4-7E35-47B1-B59C-B7A71E3A7613}");
+        //DataSet dataset = file.openDataSet("/Data/Surface/{2F2A75F4-7E35-47B1-B59C-B7A71E3A7613}");
+        DataSet dataset = file.openDataSet("/Measurement/Surface");
 
         // 3. 데이터 공간 및 크기 확인
         DataSpace dataspace = dataset.getSpace();
@@ -28,6 +31,11 @@ int main()
         // 4. 데이터 읽기 (float 배열 등)
         float* data_out = new float[dims_out[0] * dims_out[1]];
         dataset.read(data_out, PredType::NATIVE_FLOAT);
+
+		// 4. Read data (double 배열 등)
+		//std::vector<double> data_out(dims_out[0] * dims_out[1]);
+		//dataset.read(data_out.data(), H5::PredType::NATIVE_DOUBLE);
+
 
         // 데이터 처리...
 		/*

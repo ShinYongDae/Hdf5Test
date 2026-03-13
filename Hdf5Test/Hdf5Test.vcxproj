@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="h5_read_Zygo.cpp" />
+    <ClCompile Include="h5_read_Zygo_Attribute2.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{91B73EBF-0B1C-4515-ABD8-A6716B94E8AB}</ProjectGuid>
