@@ -1,0 +1,16 @@
+Release/
+Debug/
+ipch/
+x64/
+Hdf5Test/Release/
+Hdf5Test/Debug/
+.vs/
+
+Hdf5Test.sdf
+Hdf5Test.VC.db
+Hdf5Test/Hdf5Test.aps
+
+
+
+
+
