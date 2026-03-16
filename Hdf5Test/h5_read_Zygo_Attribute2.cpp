@@ -4,6 +4,181 @@
 
 using namespace H5;
 
+void readLateralResolution(const std::string& filename) {
+	try {
+		// Open the HDF5 file
+		H5File file(filename, H5F_ACC_RDONLY);
+
+		// Open the root group or a specific dataset where attributes are stored
+		// Typically, metadata is in the root or a 'Data' group
+		Group root = file.openGroup("/Measurement/Attributes");
+
+		// Define Attribute Name (Example: "sample_interval" or similar)
+		// Note: Actual attributes vary based on Mx version
+		//std::string attrName = "sample_interval";
+
+		Attribute attr;
+		std::string attrName;
+
+		attrName = "Data Context.Data Attributes.attr.wavelength_in";
+		if (root.attrExists(attrName)) {
+			attr = root.openAttribute(attrName);
+
+			// Assuming the attribute is a double
+			double wavelength_in;
+			attr.read(PredType::NATIVE_DOUBLE, &wavelength_in);
+			std::cout << "Wavelength: " << wavelength_in << " Meters" << std::endl;
+		}
+		else {
+			std::cout << "Attribute " << attrName << " not found." << std::endl;
+		}
+
+		attrName = "Data Context.Data Attributes.attr.lateral_res";
+		if (root.attrExists(attrName)) {
+			attr = root.openAttribute(attrName);
+
+			// Assuming the attribute is a double
+			double lateralResolution;
+			attr.read(PredType::NATIVE_DOUBLE, &lateralResolution);
+			std::cout << "Lateral Resolution : " << lateralResolution << " Meters" << std::endl;
+		}
+		else {
+			std::cout << "Attribute " << attrName << " not found." << std::endl;
+		}
+	}
+	catch (FileIException &error) {
+		error.printErrorStack();
+	}
+	catch (AttributeIException &error) {
+		error.printErrorStack();
+	}
+}
+
+int main() {
+	std::string datxFile = "example.datx";
+	readLateralResolution(datxFile);
+	return 0;
+}
+
+/*
+#include <iostream>
+#include "H5Cpp.h"
+
+using namespace H5;
+
+int main() {
+	try {
+		// .datx 파일 열기
+		H5File file("example.datx", H5F_ACC_RDONLY);
+
+		// 메타데이터가 포함된 그룹 또는 데이터 세트 열기
+		// (Zygo 버전에 따라 실제 경로는 다를 수 있음)
+		Group group = file.openGroup("/Measurement/Attributes");
+
+		// "Lateral Resolution" 또는 "X Scale" 속성 읽기
+		Attribute attr = group.openAttribute("Mode");
+		std::string unit;
+		attr.read(H5::PredType::C_S1, &unit);
+		std::cout << "Path: " << unit << " meters" << std::endl;
+		//Attribute attr = group.openAttribute("X Scale");
+		//double x_resolution;
+		//attr.read(PredType::NATIVE_DOUBLE, &x_resolution);
+		//std::cout << "Lateral Resolution (X): " << x_resolution << " meters" << std::endl;
+
+	}
+	catch (FileIException& error) {
+		error.printErrorStack();
+	}
+	catch (DataSetIException& error) {
+		error.printErrorStack();
+	}
+	return 0;
+}
+*/
+
+/*
+#include <iostream>
+#include <vector>
+#include <string>
+#include <H5Cpp.h>
+
+using namespace H5;
+
+void readDatxResolution(const std::string& filename) {
+	try {
+		Exception::dontPrint(); // Disable automatic error printing
+		H5File file(filename, H5F_ACC_RDONLY);
+
+		// Open the "data" group where topography is stored
+		Group dataGroup = file.openGroup("Measurement");
+
+		// Open the dataset containing the spatial data (often "intensity" or "phase")
+		DataSet dataset = dataGroup.openDataSet("Surface");
+
+		// Get dataspace to understand dimensions
+		DataSpace dataspace = dataset.getSpace();
+		hsize_t dims[2];
+		dataspace.getSimpleExtentDims(dims, NULL);
+		std::cout << "Data Dimensions: " << dims[0] << " x " << dims[1] << std::endl;
+
+		// Allocate memory to read data (assuming float/double)
+		std::vector<float> data(dims[0] * dims[1]);
+
+		// Read data
+		dataset.read(data.data(), PredType::NATIVE_FLOAT);
+
+		// Data is now in 'data' vector - process as needed
+		std::cout << "Successfully read data." << std::endl;
+
+		// Access attributes to find spatial spacing
+		Attribute attrX = dataset.openAttribute("X Converter"); // Or "pixel_spacing"
+		Attribute attrY = dataset.openAttribute("Y Converter");
+
+		//double xSpacing, ySpacing;
+		//attrX.read(PredType::NATIVE_DOUBLE, &xSpacing);
+		//attrY.read(PredType::NATIVE_DOUBLE, &ySpacing);
+		DataType datatype;
+		//std::vector<std::string> attr_value;
+		//std::vector<int, float, int, int> Array;
+		std::string attr_value;
+		datatype = attrX.getDataType(); // Read the Attribute data type		
+		attrX.read(datatype, attr_value);
+
+		std::cout << "Spatial Resolution (X): " << attr_value << " um" << std::endl;
+		//std::cout << "Spatial Resolution (Y): " << ySpacing << " um" << std::endl;
+
+		// Cleanup
+		attrX.close();
+		attrY.close();
+		dataset.close();
+		file.close();
+
+	}
+	catch (FileIException& error) {
+		std::cerr << "File Error: " << error.getDetailMsg() << std::endl;
+	}
+	catch (DataSetIException& error) {
+		std::cerr << "Dataset Error: " << error.getDetailMsg() << std::endl;
+	}
+	catch (AttributeIException& error) {
+		std::cerr << "Attribute Error: " << error.getDetailMsg() << std::endl;
+	}
+}
+
+int main() {
+	std::string datxFile = "example.datx";
+	readDatxResolution(datxFile);
+	return 0;
+}
+*/
+
+/*
+#include <iostream>
+#include <string>
+#include "H5Cpp.h"
+
+using namespace H5;
+
 typedef struct stConverter
 {
 	H5::StrType strCat;
@@ -125,3 +300,4 @@ int main()
 	return 0;
 }
 
+*/
