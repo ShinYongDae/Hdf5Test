@@ -111,7 +111,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dynlibadd_D.lib;dynlibcopy_D.lib;dynlibdiff_D.lib;dynlibdump_D.lib;dynlibls_D.lib;dynlibvers_D.lib;filter_plugin1_dsets_D.lib;filter_plugin2_dsets_D.lib;filter_plugin3_dsets_D.lib;filter_plugin4_groups_D.lib;libhdf5_cpp_D.lib;libhdf5_D.lib;libhdf5_hl_cpp_D.lib;libhdf5_hl_D.lib;libhdf5_test_D.lib;libhdf5_tools_D.lib;null_vol_connector_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libhdf5_cpp_D.lib;libhdf5_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

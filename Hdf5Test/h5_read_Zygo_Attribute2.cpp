@@ -1,5 +1,193 @@
 #include <iostream>
 #include <string>
+#include <vector>
+#include "H5Cpp.h"
+
+using namespace H5;
+
+//void readZygoMetaDataSet(const std::string& filename) {
+//	try {
+//		// Open the DATX file
+//		H5File file(filename, H5F_ACC_RDONLY);
+//
+//		// Access the "Attributes" group
+//		Group attrGroup = file.openGroup("Attributes");
+//
+//		// Find the specific metadata subgroup (usually labeled, often the first)
+//		hsize_t numObjs = attrGroup.getNumObjs();
+//		std::string metaSubgroupName0 = attrGroup.getObjnameByIdx(0);
+//		std::string metaSubgroupName1 = attrGroup.getObjnameByIdx(1);
+//		Group metaGroup0 = attrGroup.openGroup(metaSubgroupName0);
+//		Group metaGroup1 = attrGroup.openGroup(metaSubgroupName1);
+//
+//		// Read specific Attribute: Wavelength
+//		Attribute wvlAttr = metaGroup1.openAttribute("Data Context.Data Attributes.attr.lateral_res");
+//		double LateralRes;
+//		wvlAttr.read(PredType::NATIVE_DOUBLE, &LateralRes);
+//		std::cout << "LateralRes: " << LateralRes * 1e9 << " nm" << std::endl;
+//
+//		//// Read Attribute: Pixel Size (X)
+//		//Attribute xResAttr = metaGroup.openAttribute("X Pixel Size");
+//		//double xRes;
+//		//xResAttr.read(PredType::NATIVE_DOUBLE, &xRes);
+//		//std::cout << "X Pixel Size: " << xRes * 1e6 << " um" << std::endl;
+//
+//	}
+//	catch (FileIException& error) {
+//		error.printErrorStack();
+//	}
+//	catch (GroupIException& error) {
+//		error.printErrorStack();
+//	}
+//	catch (AttributeIException& error) {
+//		error.printErrorStack();
+//	}
+//}
+
+void readZygoMetaDataSet(const std::string& filename) {
+	try {
+		// Open the DATX file
+		H5File file(filename, H5F_ACC_RDONLY);
+
+		// Access the "Attributes" group
+		Group attrGroup = file.openGroup("/Data/Surface");
+
+		// Find the specific metadata subgroup (usually labeled, often the first)
+		hsize_t numObjs = attrGroup.getNumObjs();
+		std::string metaSubgroupName0 = attrGroup.getObjnameByIdx(0);
+
+		// Open the dataset containing the spatial data (often "intensity" or "phase")
+		DataSet dataset = attrGroup.openDataSet(metaSubgroupName0);
+
+		// Get dataspace to understand dimensions
+		DataSpace dataspace = dataset.getSpace();
+		hsize_t dims[2];
+		dataspace.getSimpleExtentDims(dims, NULL);
+		std::cout << "Data Dimensions: " << dims[0] << " x " << dims[1] << std::endl;
+
+		// Allocate memory to read data (assuming float/double)
+		std::vector<float> data(dims[0] * dims[1]);
+
+		// Read data
+		dataset.read(data.data(), PredType::NATIVE_FLOAT);
+
+		// Data is now in 'data' vector - process as needed
+		std::cout << "Successfully read data." << std::endl;
+	}
+	catch (FileIException& error) {
+		error.printErrorStack();
+	}
+	catch (GroupIException& error) {
+		error.printErrorStack();
+	}
+	catch (AttributeIException& error) {
+		error.printErrorStack();
+	}
+}
+
+int main()
+{
+	std::string datxFile = "example.datx";
+	readZygoMetaDataSet(datxFile);
+	return 0;
+}
+
+
+/*
+#include <iostream>
+#include <string>
+#include <vector>
+#include "H5Cpp.h"
+
+// Example to read an attribute (e.g., magnification)
+void readDatxMetadata(const std::string& filename) 
+{
+	try {
+		// Open file in read-only mode
+		H5::H5File file(filename, H5F_ACC_RDONLY);
+
+		// --- Accessing Data ---
+		// Based on typical datx structures, data is in datasets.
+		// Replace "YourDataSetName" with actual names found in HDFView
+
+		// Example: Reading a string metadata attribute
+		H5::DataSet dataset = file.openDataSet("/MetaData");
+		H5::DataSpace dataspace = dataset.getSpace();
+		hsize_t dims[2];
+		int ndims = dataspace.getSimpleExtentDims(dims, NULL);
+
+		H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
+		std::string objName;
+		dataset.read(objName, str_type);
+		std::cout << "Objective: " << objName << std::endl;
+
+		//// Example: Reading numerical data (e.g., scaling)
+		//H5::DataSet scaleSet = file.openDataSet("/Parameters/PixelScale");
+		//double scaleValue;
+		//scaleSet.read(scaleValue, H5::PredType::NATIVE_DOUBLE);
+		//std::cout << "Pixel Scale: " << scaleValue << std::endl;
+
+	}
+	catch (H5::FileIException& error) {
+		error.printErrorStack();
+	}
+	catch (H5::DataSetIException& error) {
+		error.printErrorStack();
+	}
+}
+
+int main() 
+{
+	std::string datxFile = "example.datx";
+	readDatxMetadata(datxFile);
+	return 0;
+}
+*/
+
+/*
+#include <iostream>
+#include <vector>
+#include <string>
+//#include "hdf5.h"
+#include "H5Cpp.h"
+
+int main() 
+{
+	// 1. Open the .datx file
+	hid_t file_id = H5Fopen("example.datx", H5F_ACC_RDONLY, H5P_DEFAULT);
+
+	// 2. Open the dataset holding the attributes (e.g., /Measurement/Data)
+	//hid_t dataset_id = H5Dopen2(file_id, "/Measurement/Data", H5P_DEFAULT);
+	hid_t dataset_id = H5Dopen2(file_id, "/MetaData", H5P_DEFAULT);
+
+	// 3. Open the attribute by name
+	const char* attr_name = "Path"; // Replace with actual Zygo attribute name
+	hid_t attr_id = H5Aopen_by_name(dataset_id, "Link", attr_name, H5P_DEFAULT, H5P_DEFAULT);
+
+	// 4. Get type and space to read
+	hid_t attr_type = H5Aget_type(attr_id);
+
+	// Example: Reading a string attribute
+	hsize_t size = H5Tget_size(attr_type);
+	std::string attr_data(size, '\0');
+	H5Aread(attr_id, attr_type, &attr_data[0]);
+
+	std::cout << "Attribute Value: " << attr_data << std::endl;
+
+	// 5. Close everything
+	H5Tclose(attr_type);
+	H5Aclose(attr_id);
+	H5Dclose(dataset_id);
+	H5Fclose(file_id);
+
+	return 0;
+}
+*/
+
+
+/*
+#include <iostream>
+#include <string>
 #include "H5Cpp.h"
 
 using namespace H5;
@@ -8,6 +196,23 @@ void readLateralResolution(const std::string& filename) {
 	try {
 		// Open the HDF5 file
 		H5File file(filename, H5F_ACC_RDONLY);
+
+		//// Example path to metadata - this may need adjustment based on
+		//// specific Zygo MX software version
+		//DataSet dataset = file.openDataSet("/Measurement/Surface");
+		//H5::Attribute attr0 = dataset.openAttribute("X Converter");
+		//// Retrieve attribute value (assuming string for example)
+		//hsize_t attrSize = attr0.getStorageSize();
+		//std::string attrValue;
+		//attrValue.resize(attrSize);
+		//attr0.read(attr0.getDataType(), &attrValue[0]);
+		//std::cout << "Metadata Link/Value: " << attrValue << std::endl;
+
+		//// Read the string data from the attribute/dataset
+		//H5::StrType str_type(H5::PredType::C_S1, H5T_VARIABLE);
+		//std::string path_data;
+		//dataset.read(path_data, str_type);
+		//std::cout << "CopyLink Path/Metadata: " << path_data << std::endl;
 
 		// Open the root group or a specific dataset where attributes are stored
 		// Typically, metadata is in the root or a 'Data' group
@@ -20,7 +225,8 @@ void readLateralResolution(const std::string& filename) {
 		Attribute attr;
 		std::string attrName;
 
-		attrName = "Data Context.Data Attributes.attr.wavelength_in";
+		//attrName = "Data Context.Data Attributes.attr.wavelength_in";
+		attrName = "Data Context.Data Attributes.Wavelength:Value";
 		if (root.attrExists(attrName)) {
 			attr = root.openAttribute(attrName);
 
@@ -33,7 +239,8 @@ void readLateralResolution(const std::string& filename) {
 			std::cout << "Attribute " << attrName << " not found." << std::endl;
 		}
 
-		attrName = "Data Context.Data Attributes.attr.lateral_res";
+		//attrName = "Data Context.Data Attributes.attr.lateral_res";
+		attrName = "Data Context.Lateral Resolution:Value";
 		if (root.attrExists(attrName)) {
 			attr = root.openAttribute(attrName);
 
@@ -59,6 +266,8 @@ int main() {
 	readLateralResolution(datxFile);
 	return 0;
 }
+*/
+
 
 /*
 #include <iostream>
